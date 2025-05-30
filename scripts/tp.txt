@@ -1,0 +1,92 @@
+-- Get Players and LocalPlayer
+local players = game.Players:GetChildren()
+local localplayer = game.Players.LocalPlayer
+
+-- Create GUI Elements
+function spawn()
+	local screenGUI = Instance.new("ScreenGui", localplayer.PlayerGui)
+	local frameM = Instance.new("Frame", screenGUI)
+	local frame = Instance.new("ScrollingFrame", frameM)
+	local refreshB = Instance.new("TextButton", frameM)
+	local moveB = Instance.new("TextButton", frameM)
+
+	-- Configure Main Frame
+	frameM.Size = UDim2.new(0, 114, 0, 280)
+	frameM.Position = UDim2.new(0, 0, 0, 0)
+	frame.Size = UDim2.new(1, 0, 1, 0)
+	frame.ScrollBarThickness = 10
+
+	-- Function to Refresh Player List
+	local function refresh()
+		frame:ClearAllChildren()
+
+		-- Add UIListLayout for proper alignment
+		local layout = Instance.new("UIListLayout", frame)
+		layout.SortOrder = Enum.SortOrder.LayoutOrder
+
+		-- Populate Player List
+		for _, player in ipairs(game.Players:GetChildren()) do
+			local button = Instance.new("TextButton", frame)
+			button.Size = UDim2.new(0, 114, 0, 20)
+			button.Text = player.Name
+
+			-- Teleport to player on click
+			button.MouseButton1Click:Connect(function()
+				if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+					localplayer.Character.HumanoidRootPart.CFrame = player.Character.HumanoidRootPart.CFrame + Vector3.new(0, 10, 0)
+				end
+			end)
+		end
+	end
+
+	-- Configure Refresh Button
+	refreshB.Text = "Refresh"
+	refreshB.Position = UDim2.new(0, 0, 1, 0)
+	refreshB.Size = UDim2.new(1, 0, 0, 20)
+	refreshB.MouseButton1Click:Connect(refresh)
+
+	-- Configure Draggable Move Button
+	moveB.Size = UDim2.new(1, 0, 0, 20)
+	moveB.Position = UDim2.new(0, 0, 0, -20)
+	moveB.Text = ""
+	moveB.BackgroundColor3 = Color3.new(0.258824, 0.258824, 0.258824)
+
+	-- Draggable Logic
+	local isDragging = false
+	local startMousePos, startFramePos = nil, nil
+	local mouse = localplayer:GetMouse()
+
+	moveB.MouseButton1Down:Connect(function()
+		isDragging = true
+		startMousePos = Vector2.new(mouse.X, mouse.Y)
+		startFramePos = frameM.Position
+	end)
+
+	-- Use `UserInputService` to handle releasing the mouse button globally
+	local userInputService = game:GetService("UserInputService")
+
+	userInputService.InputEnded:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			isDragging = false
+		end
+	end)
+
+	game:GetService("RunService").RenderStepped:Connect(function()
+		if isDragging then
+			local delta = Vector2.new(mouse.X, mouse.Y) - startMousePos
+			frameM.Position = UDim2.new(
+				0,
+				startFramePos.X.Offset + delta.X,
+				0,
+				startFramePos.Y.Offset + delta.Y
+			)
+		end
+	end)
+
+end
+-- Initial Refresh
+spawn()
+refresh()
+localplayer.Character:WaitForChild("Humanoid").Died:Connect(function()
+	spawn()
+end)

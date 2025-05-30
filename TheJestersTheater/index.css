@@ -1,0 +1,11 @@
+/* index.css */
+.video {
+    border-width: 5px;
+    border-color: black;
+    height: 750px;
+    width: 1280;
+}
+.thumbnail {
+    width: 1280px;
+    height: 720px;
+}
