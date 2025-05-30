@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHAT</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="stylesheet" href="../index.css">
+    <style>
+        /* Header and Navigation */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #f1f1f1;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 50px;
+            width: auto;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+        }
+
+        .header-right a {
+            margin-right: 20px;
+            text-decoration: none;
+            color: black;
+            font-weight: bold;
+        }
+
+        .header-right .menu {
+            cursor: pointer;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #f9f9f9;
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.2);
+            z-index: 1;
+            border-radius: 5px;
+            margin-top: 70px;
+        }
+
+        .dropdown-content a {
+            color: black;
+            padding: 5px 10px;
+            text-decoration: none;
+            display: block;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #ddd;
+        }
+
+        /* Chat Styles */
+        #messages {
+            height: 500px;
+            width: 100%;
+            border: 1px solid #ccc;
+            font: 16px/26px Georgia, Garamond, Serif;
+            overflow: auto;
+            padding: 10px;
+        }
+
+        .fchat {
+            width: calc(100% - 50px);
+            height: auto;
+            border: 1px solid black;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 40px;
+            background-color: white;
+            position: fixed;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            align-items: center;
+        }
+
+        .message {
+            width: calc(100% - 80px);
+            padding: 5px;
+            margin-right: 10px;
+            box-sizing: border-box;
+        }
+
+        button {
+            padding: 5px 10px;
+            width: 70px;
+        }
+
+        .menu {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="../" class="logo"><img src="/images/JesterLOGO.png" alt="Logo"> JS</a>
+        <div class="header-right">
+            <a href="../">Home</a>
+            <script>
+                function menu() {
+                    var dropdowns = document.getElementById("dropdownMenu");
+                    dropdowns.style.display = (dropdowns.style.display === "grid") ? "none" : "grid";
+                }
+            </script>
+            <a class="menu" onclick="menu()">Account</a>
+            <div class="dropdown-content" id="dropdownMenu">
+                <a href="/account">Profile</a>
+                <a href="/account/setting.php">Settings</a>
+                <a href="/account/signup.php">Sign Up</a>
+                <a href="/account/login.php">Log In</a>
+                <a href="/account/logout.php">Log Out</a>
+            </div>
+        </div>
+    </div> 
+
+    <div id="messages"></div>
+
+    <div class="fchat">
+        <form method="POST" action="chat.php" style="width: 100%; display: flex;">
+            <input name="message" class="message" type="text" placeholder="Type a message...">
+            <button type="submit">SEND</button>
+        </form>
+    </div>
+
+    <script>
+        let messages = document.getElementById('messages');
+
+        function loadMessages() {
+            messages.innerHTML = ''; // Clear the previous messages
+
+            // Create a new XMLHttpRequest object
+            let xhr = new XMLHttpRequest();
+
+            // Initialize a GET request for the chat.txt file
+            xhr.open("GET", 'http://73.83.240.230/chat/chat.txt', true);
+
+            // Set up a function to handle the response
+            xhr.onload = function() {
+                if (xhr.status === 200) {
+                    let chatTXT = xhr.responseText.split(/\r?\n/);  // Split the response into lines
+
+                    // Loop through the lines and display messages
+                    for (let i = 0; i < 3000 && i < chatTXT.length; i++) {
+                        let message = chatTXT[i].trim();
+                        if (message) {  // Avoid rendering empty lines
+                            let user = message.split(":")[0]
+                            message = message.replace(user+':','')
+                            messages.innerHTML += "<div class='re'>"
+                            messages.innerHTML += "<a class='username'>"+user+"| </a>"+"<a>" + message + "</a><br>";
+                            messages.innerHTML += "</div>"
+                        }
+                    }
+                } else {
+                    console.error("Failed to load chat messages. Status: " + xhr.status);
+                }
+            };
+
+            // Handle network or other errors
+            xhr.onerror = function() {
+                console.error("Error occurred during the request.");
+            };
+
+            // Send the request
+            xhr.send();
+        }
+
+        // Initial call to load messages
+        loadMessages();
+    </script>
+</body>
+</html>
